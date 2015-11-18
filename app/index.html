@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="content-type" content="text/html; charset=gb2312"/>
+<title>搜狗地图 JavaScript API 示例: 加载指定城市区域的地图</title>
+<style type="text/css">
+html {height: auto;}
+body {height: auto;margin: 0;padding: 0;}
+#map_canvas {width:1000px;height: 500px;position: absolute;}
+@media print {#map_canvas {height: 950px;}}
+</style>
+
+</head>
+<body onload="initialize()">
+  <div id="map_canvas"></div>
+  <script type="text/javascript" src="http://api.go2map.com/maps/js/api_v2.5.1.js"></script>
+<script type="text/javascript">
+function createMap(a){
+  if(a.status='ok'){
+    var geometry=a.data[0];
+    console.log(a.data);
+       var myOptions = {
+      zoom: 20,
+      mapControl:false,
+      // hdMap:true,
+      tileSize: new sogou.maps.Size(256,256),  //普清的瓦片大小为new Size(256,256)，
+      //高清的瓦片大小默认为new Size(192,192)，
+      //在new ipad和iphone 4s上建议设置为new Size(128,128)。
+      mapTypeId:sogou.maps.MapTypeId.EDUSHIMAP,
+      center: new sogou.maps.Point(geometry.location.x,geometry.location.y)
+    }
+    map = new sogou.maps.Map(document.getElementById("map_canvas"),
+                                  myOptions);
+         new sogou.maps.Marker({
+             map:map,
+             title:geometry.address,
+             position:geometry.location
+         });
+     }    
+}
+  function initialize() {
+ 
+    var request={address:{addr:'湖北民族学院',city:'恩施'}}
+    var geo=new sogou.maps.Geocoder();
+    geo.geocode(request,createMap);
+    
+    
+  }
+</script>
+</body>
+</html>

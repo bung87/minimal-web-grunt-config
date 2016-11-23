@@ -1,4 +1,12 @@
 module.exports = function(grunt) {
+var LIVERELOAD_PORT = 35729;
+var lrSnippet = require('connect-livereload')({
+  port: LIVERELOAD_PORT
+});
+
+var mountFolder = function(connect, dir) {
+  return require('serve-static')(require('path').resolve(dir));
+};
 grunt.initConfig({
   connect: {
     server: {
@@ -11,14 +19,17 @@ grunt.initConfig({
             // do something with socket
           });
         }*/
-        base: {
-          path: './app/',
-          options: {
-            index: 'index.html',
-            maxAge: 300000
-          }
+        middleware: function(connect) {
+            return [lrSnippet, mountFolder(connect, 'public'),mountFolder(connect, 'app/views')];
         }
-      ,livereload:35729
+        // ,base: {
+        //   path: './app/',
+        //   options: {
+        //     index: 'index.html',
+        //     maxAge: 300000
+        //   }
+        // }
+      // ,livereload:LIVERELOAD_PORT
       ,open:true
       // ,keepalive:true
       }
@@ -26,6 +37,10 @@ grunt.initConfig({
   }
   ,
   watch: {
+     sass: {
+        files: 'app/assets/stylesheets/{,*/}*.{scss,sass}',
+        tasks: ['sass:dist']
+      },
       livereload: {
         options: {
           livereload: '<%=connect.server.options.livereload%>'
@@ -33,15 +48,26 @@ grunt.initConfig({
 
         files: [  
          
-          'app/*.html',
-          'app/style/{,*/}*.css',
-          'app/scripts/{,*/}*.js',
-          'app/images/{,*/}*.{png,jpg}'
+          'app/views/{,*/}*.html',
+          'public/{,*/}*.css',
+          'public/{,*/}*.js',
+          'app/assets/images/{,*/}*.{png,jpg}'
         ]
       }
+    },
+ sass: {
+    dist: {
+      files: [{
+        expand: true,
+        cwd: 'app/assets/stylesheets',
+        src: ['*.scss'],
+        dest: './public',
+        ext: '.css'
+      }]
     }
+  }
 });
-
+grunt.loadNpmTasks('grunt-contrib-sass');
 grunt.loadNpmTasks('grunt-contrib-connect');
 grunt.loadNpmTasks('grunt-contrib-watch');
 grunt.registerTask('default', [
